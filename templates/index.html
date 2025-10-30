@@ -103,10 +103,36 @@
                     </div>
                     <div class="form-group">
                         <label for="itemFrequency">Frequency:</label>
-                        <select id="itemFrequency" required>
-                            <option value="monthly">Monthly</option>
+                        <select id="itemFrequency" required onchange="toggleStartMonth()">
+                            <option value="weekly">Weekly</option>
+                            <option value="biweekly">Biweekly (Every 2 weeks)</option>
+                            <option value="monthly" selected>Monthly</option>
+                            <option value="bimonthly">Bimonthly (Every 2 months)</option>
+                            <option value="quarterly">Quarterly (Every 3 months)</option>
+                            <option value="semiannually">Semiannually (Every 6 months)</option>
+                            <option value="annually">Annually (Once per year)</option>
                             <option value="one_time">One Time</option>
                         </select>
+                    </div>
+                    <div class="form-group" id="startMonthGroup">
+                        <label for="itemStartMonth">Start Month (for recurring patterns):</label>
+                        <select id="itemStartMonth">
+                            <option value="1" selected>January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                            For quarterly/semiannual/annual items: First occurrence month
+                        </small>
                     </div>
                     <div class="form-group">
                         <label for="itemCategory">Category:</label>

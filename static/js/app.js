@@ -63,6 +63,27 @@ function setCurrentDateDefaults() {
     document.getElementById('customMonth').value = month;
     document.getElementById('viewYear').value = year;
     document.getElementById('viewMonth').value = month;
+
+    // Set start month to current month
+    const startMonthSelect = document.getElementById('itemStartMonth');
+    if (startMonthSelect) {
+        startMonthSelect.value = month;
+    }
+}
+
+// Toggle start month visibility based on frequency
+function toggleStartMonth() {
+    const frequency = document.getElementById('itemFrequency').value;
+    const startMonthGroup = document.getElementById('startMonthGroup');
+
+    // Show start month for frequencies that use it
+    const needsStartMonth = ['bimonthly', 'quarterly', 'semiannually', 'annually'];
+
+    if (needsStartMonth.includes(frequency)) {
+        startMonthGroup.style.display = 'block';
+    } else {
+        startMonthGroup.style.display = 'none';
+    }
 }
 
 // Load current month info
@@ -127,7 +148,8 @@ async function addBudgetItem(event) {
         default_amount: parseFloat(document.getElementById('itemAmount').value),
         frequency: document.getElementById('itemFrequency').value,
         category: document.getElementById('itemCategory').value,
-        due_day: parseInt(document.getElementById('itemDueDay').value)
+        due_day: parseInt(document.getElementById('itemDueDay').value),
+        start_month: parseInt(document.getElementById('itemStartMonth').value)
     };
 
     try {

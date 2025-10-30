@@ -18,7 +18,13 @@ class TransactionType(Enum):
 
 
 class Frequency(Enum):
+    WEEKLY = "weekly"
+    BIWEEKLY = "biweekly"
     MONTHLY = "monthly"
+    BIMONTHLY = "bimonthly"  # Every 2 months
+    QUARTERLY = "quarterly"  # Every 3 months
+    SEMIANNUALLY = "semiannually"  # Every 6 months
+    ANNUALLY = "annually"
     ONE_TIME = "one_time"
 
 
@@ -31,12 +37,52 @@ class BudgetItem:
     frequency: Frequency
     category: str = "General"
     due_day: int = 1  # Day of month (1-31)
+    start_month: int = 1  # Starting month for recurring patterns (1-12)
 
     def get_amount_for_month(self, year: int, month: int, custom_amounts: Dict = None) -> float:
         """Get amount for specific month, allowing for variable amounts"""
         if custom_amounts and f"{year}-{month:02d}" in custom_amounts:
             return custom_amounts[f"{year}-{month:02d}"]
         return self.default_amount
+
+    def should_generate_for_month(self, year: int, month: int) -> bool:
+        """Determine if transaction should be generated for this month based on frequency"""
+        if self.frequency == Frequency.MONTHLY:
+            return True
+        elif self.frequency == Frequency.WEEKLY or self.frequency == Frequency.BIWEEKLY:
+            return True  # Weekly/biweekly generate every month
+        elif self.frequency == Frequency.BIMONTHLY:
+            # Every 2 months starting from start_month
+            months_since_start = (month - self.start_month) % 12
+            return months_since_start % 2 == 0
+        elif self.frequency == Frequency.QUARTERLY:
+            # Every 3 months starting from start_month
+            months_since_start = (month - self.start_month) % 12
+            return months_since_start % 3 == 0
+        elif self.frequency == Frequency.SEMIANNUALLY:
+            # Every 6 months starting from start_month
+            months_since_start = (month - self.start_month) % 12
+            return months_since_start % 6 == 0
+        elif self.frequency == Frequency.ANNUALLY:
+            # Once per year in the start_month
+            return month == self.start_month
+        elif self.frequency == Frequency.ONE_TIME:
+            return False  # One-time items handled separately
+        return False
+
+    def get_occurrences_in_month(self, year: int, month: int) -> int:
+        """Get number of times this item occurs in the given month"""
+        if self.frequency == Frequency.WEEKLY:
+            # Calculate weeks in month (approximately 4-5)
+            import calendar
+            days_in_month = calendar.monthrange(year, month)[1]
+            return days_in_month // 7  # Roughly 4 per month
+        elif self.frequency == Frequency.BIWEEKLY:
+            # Biweekly is roughly 2 per month
+            return 2
+        else:
+            # All other frequencies: 1 occurrence per applicable month
+            return 1 if self.should_generate_for_month(year, month) else 0
 
 
 @dataclass
@@ -81,19 +127,38 @@ class BudgetPlanner:
     def generate_monthly_transactions(self, year: int, month: int):
         """Generate expected transactions for a given month based on budget items"""
         for item_name, item in self.budget_items.items():
-            if item.frequency == Frequency.MONTHLY:
+            # Get number of occurrences for this item in this month
+            occurrences = item.get_occurrences_in_month(year, month)
+
+            if occurrences > 0:
                 # Check if transaction already exists
                 existing = self._find_transaction(item_name, year, month)
                 if not existing:
-                    amount = item.get_amount_for_month(year, month, self.custom_amounts.get(item_name))
-                    transaction = Transaction(
-                        budget_item_name=item_name,
-                        amount=amount,
-                        year=year,
-                        month=month,
-                        paid=False
-                    )
-                    self.transactions.append(transaction)
+                    # For weekly/biweekly, multiply amount by occurrences
+                    base_amount = item.get_amount_for_month(year, month, self.custom_amounts.get(item_name))
+
+                    if item.frequency in [Frequency.WEEKLY, Frequency.BIWEEKLY]:
+                        # Generate single transaction with total amount for the month
+                        total_amount = base_amount * occurrences
+                        transaction = Transaction(
+                            budget_item_name=item_name,
+                            amount=total_amount,
+                            year=year,
+                            month=month,
+                            paid=False,
+                            notes=f"{occurrences}x {item.frequency.value}"
+                        )
+                        self.transactions.append(transaction)
+                    else:
+                        # For other frequencies, single occurrence
+                        transaction = Transaction(
+                            budget_item_name=item_name,
+                            amount=base_amount,
+                            year=year,
+                            month=month,
+                            paid=False
+                        )
+                        self.transactions.append(transaction)
 
     def _find_transaction(self, item_name: str, year: int, month: int) -> Optional[Transaction]:
         """Find a transaction for a specific item and month"""
@@ -325,7 +390,8 @@ class BudgetPlanner:
                     'default_amount': item.default_amount,
                     'frequency': item.frequency.value,
                     'category': item.category,
-                    'due_day': item.due_day
+                    'due_day': item.due_day,
+                    'start_month': item.start_month
                 }
                 for name, item in self.budget_items.items()
             },
@@ -362,7 +428,8 @@ class BudgetPlanner:
                 default_amount=item_data['default_amount'],
                 frequency=Frequency(item_data['frequency']),
                 category=item_data.get('category', 'General'),
-                due_day=item_data.get('due_day', 1)
+                due_day=item_data.get('due_day', 1),
+                start_month=item_data.get('start_month', 1)
             )
             self.budget_items[item.name] = item
 

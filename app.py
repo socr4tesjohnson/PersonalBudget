@@ -70,7 +70,8 @@ def get_budget_items():
             'default_amount': item.default_amount,
             'frequency': item.frequency.value,
             'category': item.category,
-            'due_day': item.due_day
+            'due_day': item.due_day,
+            'start_month': item.start_month
         })
     return jsonify(items)
 
@@ -87,7 +88,8 @@ def add_budget_item():
         default_amount=float(data['default_amount']),
         frequency=Frequency(data['frequency']),
         category=data.get('category', 'General'),
-        due_day=int(data.get('due_day', 1))
+        due_day=int(data.get('due_day', 1)),
+        start_month=int(data.get('start_month', 1))
     )
 
     planner.add_budget_item(item)

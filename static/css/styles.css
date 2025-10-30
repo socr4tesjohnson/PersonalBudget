@@ -534,3 +534,8 @@ body {
 .hidden {
     display: none;
 }
+
+/* Start month group - hide by default (shown for quarterly/annual) */
+#startMonthGroup {
+    display: none;
+}
