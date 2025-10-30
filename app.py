@@ -14,7 +14,7 @@ from budget_planner import (
 )
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24).hex())
 
 # In-memory storage (in production, use database)
 budgets = {}
@@ -269,6 +269,15 @@ def get_current_month():
         'year': now.year,
         'month': now.month,
         'month_name': now.strftime('%B %Y')
+    })
+
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat()
     })
 
 

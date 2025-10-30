@@ -2,6 +2,10 @@
 
 A flexible, powerful personal budget management system that helps you plan monthly budgets, track payments, handle unpaid amounts that accumulate over time, and forecast your account balance.
 
+**🌐 Deploy for FREE:** See [DEPLOY.md](DEPLOY.md) to publish your app online and access it from anywhere!
+
+**📱 Mobile-Responsive:** Works perfectly on phones, tablets, and desktops.
+
 ## Features
 
 ### Core Capabilities
