@@ -38,19 +38,49 @@ A flexible, powerful personal budget management system that helps you plan month
 
 ## Installation
 
-No dependencies required! This project uses only Python standard library.
-
 **Requirements:**
 - Python 3.7 or higher
+- Flask 3.0+ (for web app only)
 
-**Clone and use:**
+**Clone and install:**
 ```bash
 git clone <repository-url>
 cd PersonalBudget
-python3 main.py  # Start interactive interface
+
+# For web app (recommended)
+pip install -r requirements.txt
+python3 app.py
+
+# For CLI interface (no dependencies)
+python3 main.py
 ```
 
 ## Quick Start
+
+### Web App (Recommended - Mobile Responsive!)
+
+1. **Install and run:**
+   ```bash
+   pip install -r requirements.txt
+   python3 app.py
+   ```
+
+2. **Open your browser:**
+   Navigate to `http://localhost:5000`
+
+3. **Start budgeting:**
+   - Set your starting balance
+   - Add budget items (income and expenses)
+   - Set variable amounts for seasonal expenses
+   - Generate transactions and mark as paid
+   - View balance forecast
+
+The web app is **fully responsive** and works great on:
+- Desktop computers
+- Tablets
+- Mobile phones
+
+### CLI Interface
 
 ### Option 1: Run the Demo
 
@@ -134,6 +164,40 @@ for month in forecast:
 # Save your budget
 planner.save_to_file("my_budget.json")
 ```
+
+## Web App Features
+
+The web interface provides a modern, responsive experience with four main tabs:
+
+### Dashboard Tab
+- Set and view starting balance
+- Current month summary (planned vs paid)
+- Unpaid transactions list with accumulated totals
+- Quick transaction generation
+
+### Budget Items Tab
+- Add income and expense items
+- View all budget items with details
+- Delete budget items
+- Set custom amounts for specific months (variable expenses)
+
+### Transactions Tab
+- View transactions by month
+- Mark transactions as paid with one click
+- Track payment history
+
+### Forecast Tab
+- 12-month balance projection
+- Visual table with income, expenses, and projected balance
+- Save/load budget files
+- Manage multiple budget scenarios
+
+### Mobile-Responsive Design
+- **Touch-friendly:** Large buttons and tap targets
+- **Flexible layout:** Adapts to any screen size
+- **Swipeable tabs:** Easy navigation on mobile
+- **Optimized forms:** Mobile-friendly input fields
+- **Toast notifications:** Non-intrusive success/error messages
 
 ## Key Concepts
 
@@ -288,11 +352,21 @@ for entry in forecast:
 
 ```
 PersonalBudget/
-├── budget_planner.py    # Core budget logic and classes
-├── main.py              # Interactive CLI interface
-├── example_demo.py      # Demonstration script
-├── README.md            # This file
-└── *.json              # Saved budget files
+├── app.py                  # Flask web application
+├── budget_planner.py       # Core budget logic and classes
+├── main.py                 # Interactive CLI interface
+├── example_demo.py         # Demonstration script
+├── requirements.txt        # Python dependencies
+├── templates/
+│   └── index.html         # Web app HTML template
+├── static/
+│   ├── css/
+│   │   └── styles.css     # Responsive CSS styles
+│   └── js/
+│       └── app.js         # JavaScript for interactivity
+├── user_budgets/          # Saved budget files (web app)
+├── README.md              # This file
+└── *.json                 # Saved budget files (CLI)
 ```
 
 ## Data Model

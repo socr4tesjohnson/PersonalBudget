@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Budget Planner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>💰 Personal Budget Planner</h1>
+            <div class="balance-display" id="balanceDisplay">
+                <span class="balance-label">Starting Balance:</span>
+                <span class="balance-amount" id="balanceAmount">$0.00</span>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-button active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-button" data-tab="budget-items">Budget Items</button>
+            <button class="tab-button" data-tab="transactions">Transactions</button>
+            <button class="tab-button" data-tab="forecast">Forecast</button>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard">
+            <section class="card">
+                <h2>Set Starting Balance</h2>
+                <div class="form-group">
+                    <input type="number" id="startingBalanceInput" placeholder="Enter starting balance" step="0.01">
+                    <button class="btn btn-primary" onclick="setStartingBalance()">Update Balance</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Current Month Summary</h2>
+                <div class="summary-grid" id="currentMonthSummary">
+                    <div class="summary-item">
+                        <span class="summary-label">Month:</span>
+                        <span class="summary-value" id="currentMonthName">-</span>
+                    </div>
+                    <div class="summary-item income">
+                        <span class="summary-label">Planned Income:</span>
+                        <span class="summary-value" id="plannedIncome">$0.00</span>
+                    </div>
+                    <div class="summary-item expense">
+                        <span class="summary-label">Planned Expenses:</span>
+                        <span class="summary-value" id="plannedExpenses">$0.00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Planned Net:</span>
+                        <span class="summary-value" id="plannedNet">$0.00</span>
+                    </div>
+                    <div class="summary-item income">
+                        <span class="summary-label">Paid Income:</span>
+                        <span class="summary-value" id="paidIncome">$0.00</span>
+                    </div>
+                    <div class="summary-item expense">
+                        <span class="summary-label">Paid Expenses:</span>
+                        <span class="summary-value" id="paidExpenses">$0.00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Paid Net:</span>
+                        <span class="summary-value" id="paidNet">$0.00</span>
+                    </div>
+                    <div class="summary-item warning">
+                        <span class="summary-label">Unpaid Expenses:</span>
+                        <span class="summary-value" id="unpaidExpenses">$0.00</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="generateCurrentMonthTransactions()">Generate This Month's Transactions</button>
+            </section>
+
+            <section class="card">
+                <h2>Unpaid Transactions</h2>
+                <div id="unpaidTransactionsList"></div>
+                <div class="total-unpaid" id="totalUnpaid">Total Accumulated: $0.00</div>
+            </section>
+        </div>
+
+        <!-- Budget Items Tab -->
+        <div class="tab-content" id="budget-items">
+            <section class="card">
+                <h2>Add Budget Item</h2>
+                <form id="addBudgetItemForm" onsubmit="addBudgetItem(event)">
+                    <div class="form-group">
+                        <label for="itemName">Name:</label>
+                        <input type="text" id="itemName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemType">Type:</label>
+                        <select id="itemType" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemAmount">Default Amount:</label>
+                        <input type="number" id="itemAmount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemFrequency">Frequency:</label>
+                        <select id="itemFrequency" required>
+                            <option value="monthly">Monthly</option>
+                            <option value="one_time">One Time</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemCategory">Category:</label>
+                        <input type="text" id="itemCategory" value="General">
+                    </div>
+                    <div class="form-group">
+                        <label for="itemDueDay">Due Day (1-31):</label>
+                        <input type="number" id="itemDueDay" min="1" max="31" value="1">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Budget Item</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Your Budget Items</h2>
+                <div id="budgetItemsList"></div>
+            </section>
+
+            <section class="card">
+                <h2>Set Custom Amount for Month</h2>
+                <form id="customAmountForm" onsubmit="setCustomAmount(event)">
+                    <div class="form-group">
+                        <label for="customItemName">Budget Item:</label>
+                        <select id="customItemName" required>
+                            <option value="">Select item...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="customYear">Year:</label>
+                        <input type="number" id="customYear" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customMonth">Month (1-12):</label>
+                        <input type="number" id="customMonth" min="1" max="12" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customAmount">Custom Amount:</label>
+                        <input type="number" id="customAmount" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Set Custom Amount</button>
+                </form>
+            </section>
+        </div>
+
+        <!-- Transactions Tab -->
+        <div class="tab-content" id="transactions">
+            <section class="card">
+                <h2>View Month Transactions</h2>
+                <div class="form-group">
+                    <label for="viewYear">Year:</label>
+                    <input type="number" id="viewYear" required>
+                </div>
+                <div class="form-group">
+                    <label for="viewMonth">Month (1-12):</label>
+                    <input type="number" id="viewMonth" min="1" max="12" required>
+                </div>
+                <button class="btn btn-primary" onclick="viewMonthTransactions()">View Transactions</button>
+            </section>
+
+            <section class="card">
+                <h2>Mark Transaction as Paid</h2>
+                <div id="unpaidTransactionsForPayment"></div>
+            </section>
+        </div>
+
+        <!-- Forecast Tab -->
+        <div class="tab-content" id="forecast">
+            <section class="card">
+                <h2>Balance Forecast</h2>
+                <div class="form-group">
+                    <label for="forecastMonths">Months Ahead:</label>
+                    <input type="number" id="forecastMonths" value="12" min="1" max="24">
+                    <button class="btn btn-primary" onclick="loadForecast()">Generate Forecast</button>
+                </div>
+                <div id="forecastDisplay"></div>
+            </section>
+
+            <section class="card">
+                <h2>Save/Load Budget</h2>
+                <div class="form-group">
+                    <label for="budgetFilename">Filename:</label>
+                    <input type="text" id="budgetFilename" placeholder="my_budget">
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="saveBudget()">Save Budget</button>
+                    <button class="btn btn-secondary" onclick="loadBudget()">Load Budget</button>
+                    <button class="btn btn-secondary" onclick="listBudgetFiles()">List Files</button>
+                </div>
+                <div id="budgetFilesList"></div>
+            </section>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
