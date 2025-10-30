@@ -4,6 +4,8 @@ A flexible, powerful personal budget management system that helps you plan month
 
 **🌐 Deploy for FREE:** See [DEPLOY.md](DEPLOY.md) to publish your app online and access it from anywhere!
 
+**🤖 Auto-Deploy:** GitHub Actions included! Automatic testing and deployment on every push. See [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)
+
 **📱 Mobile-Responsive:** Works perfectly on phones, tablets, and desktops.
 
 ## Features

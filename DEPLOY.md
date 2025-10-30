@@ -2,6 +2,8 @@
 
 This guide will help you deploy your Personal Budget Planner to Render.com for **FREE** and access it from anywhere!
 
+**🤖 Bonus:** This project includes GitHub Actions for automated testing and deployment! See [GITHUB_ACTIONS.md](GITHUB_ACTIONS.md) for details.
+
 ## 🚀 Quick Deploy (5 Minutes)
 
 ### Step 1: Push Your Code to GitHub

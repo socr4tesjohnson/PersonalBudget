@@ -1,0 +1,117 @@
+name: Test Application
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+  push:
+    branches-ignore:
+      - main
+      - master
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Test imports
+        run: |
+          echo "Testing core imports..."
+          python -c "from app import app; print('✓ Flask app')"
+          python -c "from budget_planner import BudgetPlanner, BudgetItem, Transaction; print('✓ Budget planner')"
+          echo "All imports successful!"
+
+      - name: Test Flask app
+        run: |
+          echo "Testing Flask application..."
+          python -c "
+          from app import app
+
+          # Test app creation
+          assert app is not None, 'App should exist'
+
+          # Test routes
+          with app.test_client() as client:
+              # Test home page
+              response = client.get('/')
+              assert response.status_code == 200, 'Home page should load'
+
+              # Test health endpoint
+              response = client.get('/health')
+              assert response.status_code == 200, 'Health check should pass'
+
+              # Test API endpoints
+              response = client.get('/api/budget/info')
+              assert response.status_code == 200, 'Budget info API should work'
+
+              response = client.get('/api/current-month')
+              assert response.status_code == 200, 'Current month API should work'
+
+          print('✓ All Flask tests passed!')
+          "
+
+      - name: Test Budget Planner Core
+        run: |
+          echo "Testing budget planner functionality..."
+          python -c "
+          from budget_planner import BudgetPlanner, BudgetItem, TransactionType, Frequency
+          from datetime import datetime
+
+          # Create planner
+          planner = BudgetPlanner(starting_balance=1000.0)
+          assert planner.starting_balance == 1000.0, 'Starting balance should be set'
+
+          # Add budget item
+          item = BudgetItem(
+              name='Test Income',
+              transaction_type=TransactionType.INCOME,
+              default_amount=500.0,
+              frequency=Frequency.MONTHLY
+          )
+          planner.add_budget_item(item)
+          assert 'Test Income' in planner.budget_items, 'Budget item should be added'
+
+          # Generate transactions
+          now = datetime.now()
+          planner.generate_monthly_transactions(now.year, now.month)
+          assert len(planner.transactions) > 0, 'Transactions should be generated'
+
+          # Test forecast
+          forecast = planner.forecast_balance(3)
+          assert len(forecast) == 3, 'Should forecast 3 months'
+
+          print('✓ All budget planner tests passed!')
+          "
+
+      - name: Test Summary
+        run: |
+          echo "## Test Results ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All tests passed successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "- ✓ Python imports" >> $GITHUB_STEP_SUMMARY
+          echo "- ✓ Flask application" >> $GITHUB_STEP_SUMMARY
+          echo "- ✓ Budget planner core" >> $GITHUB_STEP_SUMMARY
+          echo "- ✓ API endpoints" >> $GITHUB_STEP_SUMMARY
